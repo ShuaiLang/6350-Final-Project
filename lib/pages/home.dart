@@ -1,3 +1,5 @@
+import 'package:final6350/pages/addProduct.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -35,7 +37,12 @@ class _MyHomePageState extends State<MyHomePage> {
             elevation: 5,
           ),
           RaisedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context)
+                  .push(CupertinoPageRoute(builder: (BuildContext context) {
+                return AddProduct();
+              }));
+            },
             child:
                 const Text('Add new product', style: TextStyle(fontSize: 20)),
             color: Colors.blue,
