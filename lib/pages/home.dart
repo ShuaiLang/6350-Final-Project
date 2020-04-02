@@ -29,6 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           RaisedButton(
+            // browse product page navigate here
             onPressed: () {},
             child:
                 const Text('Browse products', style: TextStyle(fontSize: 20)),

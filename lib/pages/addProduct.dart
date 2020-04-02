@@ -40,7 +40,7 @@ class _AddProductState extends State<AddProduct> {
               alignment: Alignment.bottomRight,
               child: RaisedButton(
                 onPressed: () {},
-                child: const Text('POST', style: TextStyle(fontSize: 20)),
+                child: const Text('POST', style: TextStyle(fontSize: 16)),
                 color: Colors.blue,
                 textColor: Colors.white,
                 elevation: 5,
