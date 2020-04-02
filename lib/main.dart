@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -7,7 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Browse Posts',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'posts'),
     );
   }
 }
@@ -71,41 +72,94 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      body: Center(child: _buildBody()),
+//      floatingActionButton: FloatingActionButton(
+//        onPressed: _incrementCounter,
+//        tooltip: 'Increment',
+//        child: Icon(Icons.add),
+//      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
+
+Widget _buildBody() {
+  return StreamBuilder<QuerySnapshot>(
+    stream: Firestore.instance.collection('post').snapshots(),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) return LinearProgressIndicator();
+
+      return _buildList(snapshot.data.documents);
+    },
+  );
+}
+
+Widget _buildList(List<DocumentSnapshot> snapshot){
+  // fetch data from firebase db
+
+  return ListView(
+    children: snapshot.map((data) => _buildListItem(data)).toList()
+  );
+}
+
+Widget _buildListItem(DocumentSnapshot data) {
+  final record = Record.fromSnapshot(data);
+
+  return Padding(
+    key: ValueKey(record.title),
+    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    child: Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(5.0),
+      ),
+      child: ListTile(
+        title: Text(record.title),
+        trailing: Text(record.description),
+        onTap: () => print(record),
+      ),
+    ),
+  );
+}
+
+class Record {
+  final String title;
+  final String description;
+  final DocumentReference reference;
+
+  Record.fromMap(Map<String, dynamic> map, {this.reference})
+      : assert(map['title'] != null),
+        assert(map['description'] != null),
+        title = map['title'],
+        description = map['description'];
+
+  Record.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(snapshot.data, reference: snapshot.reference);
+
+  @override
+  String toString() => "Record<$title:$description>";
+}
+
+var posts = [
+  {
+    "title": "Empire",
+    "description": "Big big"
+  },
+  {
+    "title": "kingdom",
+    "description": "huge huge"
+  }
+];
+
+//_tile('CineArts at the Empire', '85 W Portal Ave', Icons.theaters),
+//_tile('The Castro Theater', '429 Castro St', Icons.theaters),
+//_tile('Alamo Drafthouse Cinema', '2550 Mission St', Icons.theaters),
+//_tile('Roxie Theater', '3117 16th St', Icons.theaters),
+//_tile('United Artists Stonestown Twin', '501 Buckingham Way',
+//Icons.theaters),
+//_tile('AMC Metreon 16', '135 4th St #3000', Icons.theaters),
+//Divider(),
+//_tile('Kescaped_code#39;s Kitchen', '757 Monterey Blvd', Icons.restaurant),
+//_tile('Emmyescaped_code#39;s Restaurant', '1923 Ocean Ave', Icons.restaurant),
+//_tile(
+//'Chaiya Thai Restaurant', '272 Claremont Blvd', Icons.restaurant),
+//_tile('La Ciccia', '291 30th St', Icons.restaurant),

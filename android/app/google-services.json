@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "509910840645",
+    "firebase_url": "https://project-meng-lang.firebaseio.com",
+    "project_id": "project-meng-lang",
+    "storage_bucket": "project-meng-lang.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:509910840645:android:7218052c966ada33e83a2c",
+        "android_client_info": {
+          "package_name": "com.example.final6350"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "509910840645-svb10sabr1ldt3mrs2opqo17fs0v4i85.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAze0yOgPxDmeT5B18tlEgsNZHGohHd5pQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "509910840645-svb10sabr1ldt3mrs2opqo17fs0v4i85.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
