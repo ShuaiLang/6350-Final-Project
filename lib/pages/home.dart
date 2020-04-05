@@ -17,11 +17,17 @@ class _MyHomePageState extends State<MyHomePage> {
         // need to think about layout
         actions: <Widget>[
           IconButton(
-              icon: Icon(
-                Icons.add,
-                color: Colors.white,
-              ),
-              onPressed: null),
+            icon: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.of(context)
+                  .push(CupertinoPageRoute(builder: (BuildContext context) {
+                return AddProduct();
+              }));
+            },
+          ),
         ],
       ),
       body: Center(
@@ -32,24 +38,24 @@ class _MyHomePageState extends State<MyHomePage> {
             // browse product page navigate here
             onPressed: () {},
             child:
-                const Text('Browse products', style: TextStyle(fontSize: 20)),
+                const Text('直接显示商品 不需要这个按钮', style: TextStyle(fontSize: 20)),
             color: Colors.blue,
             textColor: Colors.white,
             elevation: 5,
           ),
-          RaisedButton(
-            onPressed: () {
-              Navigator.of(context)
-                  .push(CupertinoPageRoute(builder: (BuildContext context) {
-                return AddProduct();
-              }));
-            },
-            child:
-                const Text('Add new product', style: TextStyle(fontSize: 20)),
-            color: Colors.blue,
-            textColor: Colors.white,
-            elevation: 5,
-          )
+          // RaisedButton(
+          //   onPressed: () {
+          //     Navigator.of(context)
+          //         .push(CupertinoPageRoute(builder: (BuildContext context) {
+          //       return AddProduct();
+          //     }));
+          //   },
+          //   child:
+          //       const Text('Add new product', style: TextStyle(fontSize: 20)),
+          //   color: Colors.blue,
+          //   textColor: Colors.white,
+          //   elevation: 5,
+          // )
         ],
       )),
       drawer: Drawer(

@@ -1,3 +1,5 @@
+import 'package:final6350/pages/home.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AddProduct extends StatefulWidget {
@@ -38,16 +40,32 @@ class _AddProductState extends State<AddProduct> {
             Container(
               padding: EdgeInsets.all(15),
               alignment: Alignment.bottomRight,
-              child: RaisedButton(
-                onPressed: () {},
-                child: const Text('POST', style: TextStyle(fontSize: 16)),
-                color: Colors.blue,
-                textColor: Colors.white,
-                elevation: 5,
-              ),
+              child: StatelessButtonBody()
             )
           ],
         ),
+      ),
+    );
+  }
+
+}
+
+class StatelessButtonBody extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.bottomRight,
+      child: RaisedButton(
+        color: Colors.blue,
+        textColor: Colors.white,
+        child: Text('POST'),
+        onPressed: () {
+          Scaffold.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Added a new post!'),
+            ),
+          );
+        },
       ),
     );
   }
