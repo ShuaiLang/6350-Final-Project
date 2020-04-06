@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-        home: PostList(title: 'Garage Sale Item List'),
+        home: PostList(),
     );
   }
 }
