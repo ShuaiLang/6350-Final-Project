@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:final6350/Post.dart';
+import 'package:final6350/pages/Post.dart';
 
 
 class PostDetail extends StatelessWidget {
@@ -127,6 +127,7 @@ class _ImageGridItemState extends State<ImageGridItem> {
   String loadingStatus = "No Image";
 
   getImage() {
+
     this.setState((){
       loadingStatus = "Loading";
     });

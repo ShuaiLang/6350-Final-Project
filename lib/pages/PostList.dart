@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:final6350/Post.dart';
-import 'package:final6350/PostDetail.dart';
+import 'package:final6350/pages/Post.dart';
+import 'package:final6350/pages/PostDetail.dart';
+import 'package:final6350/pages/addPost.dart';
 
 class PostList extends StatefulWidget {
   PostList({Key key, this.title}) : super(key: key);
@@ -19,16 +20,49 @@ class _PostListState extends State<PostList> {
 
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(child: _buildBody(context)),
-//      floatingActionButton: FloatingActionButton(
-//        onPressed: _incrementCounter,
-//        tooltip: 'Increment',
-//        child: Icon(Icons.add),
-//      ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (BuildContext context) {
+            return addPost();
+          }));
+        },
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+      ),
+      drawer: Drawer(
+          child: Column(
+            children: <Widget>[
+              UserAccountsDrawerHeader(
+                accountName: Text('Username from google sign in'),
+                accountEmail: Text("useremail@gmail.com"),
+                currentAccountPicture: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.person, size: 35)),
+              ),
+              ListTile(
+                leading: Text(
+                  'Signin',
+                  style: TextStyle(fontSize: 18),
+                ),
+                trailing: CircleAvatar(
+                  child: Icon(Icons.arrow_back),
+                ),
+              ),
+              ListTile(
+                leading: Text(
+                  'Logout',
+                  style: TextStyle(fontSize: 18),
+                ),
+                trailing: CircleAvatar(
+                  child: Icon(Icons.arrow_forward),
+                ),
+              )
+            ],
+          )),
     );
   }
 }
