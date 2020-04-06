@@ -75,35 +75,3 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   );
 }
 
-//class PostDetail extends StatelessWidget {
-//  // Declare a field that holds the post detail.
-//  final Post post;
-//
-//  // In the constructor, require a post.
-//  PostDetail({Key key, @required this.post}) : super(key: key);
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Scaffold(
-//      appBar: AppBar(
-//        title: Text(post.title),
-//      ),
-//      body: Padding(
-//        padding: EdgeInsets.all(16.0),
-//        child: Text(post.description),
-//      ),
-//    );
-//  }
-//}
-
-var posts = [
-  {
-    "title": "Empire",
-    "description": "Big big"
-  },
-  {
-    "title": "kingdom",
-    "description": "huge huge"
-  }
-];
-

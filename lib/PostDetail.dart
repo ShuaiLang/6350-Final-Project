@@ -1,40 +1,8 @@
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:http/http.dart' as http;
-import 'package:uuid/uuid.dart';
-import 'dart:io';
 import 'package:final6350/Post.dart';
-
-//class PostDetail extends StatelessWidget {
-//  // Declare a field that holds the post detail.
-//  final Post post;
-//  final FirebaseStorage storage;
-//
-//  // In the constructor, require a post.
-//  PostDetail({Key key, @required this.post, this.storage}) : super(key: key);
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Scaffold(
-//      appBar: AppBar(
-//        title: Text(post.title),
-//      ),
-//      body: ListView(
-//        children: [
-//          Padding(
-//            padding: EdgeInsets.all(16.0),
-//            child: Text(post.description),
-//          ),
-//
-//        ],
-//      ),
-//    );
-//  }
-//}
 
 
 class PostDetail extends StatelessWidget {
@@ -50,7 +18,7 @@ class PostDetail extends StatelessWidget {
       body: ListView(
         children: [
           textSection(post: post),
-          Thumbnails(images: post.images),
+          Thumbnails(itemName: post.title, images: post.images),
         ],
       ),
     );
@@ -58,8 +26,9 @@ class PostDetail extends StatelessWidget {
 }
 
 class Thumbnails extends StatelessWidget {
+  final String itemName;
   final List images;
-  Thumbnails({this.images});
+  Thumbnails({this.itemName, this.images});
 
   Widget imageGrid() {
     return GridView.builder(
@@ -67,7 +36,7 @@ class Thumbnails extends StatelessWidget {
         gridDelegate:
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
         itemBuilder:(context, index) {
-          return ImageGridItem(images[index]);
+          return ImageGridItem(itemName, images[index], index);
         }
     );
   }
@@ -117,12 +86,34 @@ class textSection extends StatelessWidget {
   }
 }
 
+class FullImage extends StatelessWidget {
+  final Uint8List imageBytes;
+  final String itemName;
+  final int index;
+
+  FullImage({this.imageBytes, this.itemName, this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${itemName} image ${index + 1}'),
+      ),
+      body:
+          Image.memory(imageBytes, fit: BoxFit.cover),
+    );
+  }
+}
 
 class ImageGridItem extends StatefulWidget {
+  String _itemName;
   String _name;
+  int _index;
   
-  ImageGridItem(String name) {
+  ImageGridItem(String itemName, String name, int index) {
+    this._itemName = itemName;
     this._name = name;
+    this._index = index;
   }
 
   @override
@@ -134,6 +125,7 @@ class _ImageGridItemState extends State<ImageGridItem> {
   Uint8List imageBytes;
   String errorMsg;
   String loadingStatus = "No Image";
+
   getImage() {
     this.setState((){
       loadingStatus = "Loading";
@@ -165,7 +157,18 @@ class _ImageGridItemState extends State<ImageGridItem> {
   
   @override
   Widget build(BuildContext context) {
-    return GridTile(child: ImageWidget());
+    return GridTile(
+        child: new InkResponse(
+        enableFeedback: true,
+        child: ImageWidget(),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FullImage(imageBytes: imageBytes, itemName: widget._itemName, index: widget._index)),
+          );
+        },
+      )
+    );
   }
 }
 
