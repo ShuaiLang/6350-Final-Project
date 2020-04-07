@@ -31,6 +31,7 @@ class Thumbnails extends StatelessWidget {
   Thumbnails({this.itemName, this.images});
 
   Widget imageGrid() {
+    if (images == null) return null;
     return GridView.builder(
       // if no image, images here will be null
       itemCount: (images == null) ? 0 : images.length,

@@ -18,12 +18,11 @@ class _addPostState extends State<addPost> {
   var price;
   String description;
   List<File> imageList;
-  
+  final globalKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     final databaseReference = Firestore.instance;
-    final globalKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
       appBar: AppBar(title: Text("Garage Sale"), centerTitle: true),
@@ -81,7 +80,8 @@ class _addPostState extends State<addPost> {
                     if (imageList != null && imageList.length < 4) {
                       takePhoto();
                     } else {
-                      // show snack bar or sth?
+                      final snackBar = SnackBar(content: Text('Cannot add more than four images'));
+                      globalKey.currentState.showSnackBar(snackBar);
                     }
                   },
                   color: Colors.green,

@@ -6,8 +6,7 @@ import 'package:final6350/pages/PostDetail.dart';
 import 'package:final6350/pages/addPost.dart';
 
 class PostList extends StatefulWidget {
-  PostList({Key key, this.title}) : super(key: key);
-  final String title;
+  PostList({Key key}) : super(key: key);
 
   @override
   _PostListState createState() => _PostListState();
@@ -20,18 +19,18 @@ class _PostListState extends State<PostList> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Garage Sale Item List'),
       ),
       body: Center(child: _buildBody(context)),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (BuildContext context) {
-            return addPost();
-          }));
-        },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+      floatingActionButton: Builder(
+        builder: (context) =>
+            FloatingActionButton(
+              onPressed: () {
+                _navigateAndDisplaySnackbar(context);
+              },
+              tooltip: 'Increment',
+              child: Icon(Icons.add),
+            ),
       ),
       drawer: Drawer(
           child: Column(
@@ -66,6 +65,23 @@ class _PostListState extends State<PostList> {
             ],
           )),
     );
+  }
+}
+
+_navigateAndDisplaySnackbar(BuildContext context) async {
+  // Navigator.push returns a Future that completes after calling
+  // Navigator.pop on the Selection Screen.
+  final result = await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => addPost()),
+  );
+
+  // After the Selection Screen returns a result, hide any previous snackbars
+  // and show the new result.
+  if (result != null) {
+    Scaffold.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text("$result")));
   }
 }
 
