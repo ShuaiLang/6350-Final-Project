@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 // import 'package:image_picker/image_picker.dart';
+import 'package:final6350/model.dart';
+import 'package:validators/validators.dart' as validator;
 
 class addPost extends StatefulWidget {
   @override
@@ -19,17 +21,19 @@ class _addPostState extends State<addPost> {
   String description;
   List<File> imageList;
   final globalKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
+  Model model = Model();
 
   @override
   Widget build(BuildContext context) {
     final databaseReference = Firestore.instance;
-
+    final halfMediaWidth = MediaQuery.of(context).size.width / 2.0;
     return Scaffold(
-      appBar: AppBar(title: Text("Garage Sale"), centerTitle: true),
+      appBar: AppBar(title: Text("New post"), centerTitle: true),
       body: Container(
+        key: _formKey,
         height: MediaQuery.of(context).size.height,
         child: Column(
-          mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             TextField(
               decoration: InputDecoration(hintText: 'Enter title of item'),
@@ -49,17 +53,13 @@ class _addPostState extends State<addPost> {
                   hintText: 'Enter description of the item'),
               onChanged: (v) => {this.description = v},
             ),
-            Divider(
-              height: 10,
-              color: Colors.black,
-              thickness: 1,
-            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 RaisedButton.icon(
                   onPressed: () {
-                    if (imageList == null || (imageList != null && imageList.length < 4)) {
+                    if (imageList == null ||
+                        (imageList != null && imageList.length < 4)) {
                       pickImage();
                     } else {
                       // show snack bar or sth?
@@ -77,7 +77,8 @@ class _addPostState extends State<addPost> {
                 ),
                 RaisedButton.icon(
                   onPressed: () {
-                    if (imageList == null || (imageList != null && imageList.length < 4)) {
+                    if (imageList == null ||
+                        (imageList != null && imageList.length < 4)) {
                       takePhoto();
                     } else {
                       // show snack bar or sth?
@@ -117,19 +118,30 @@ class _addPostState extends State<addPost> {
                       addPost(databaseReference, this.title, this.price,
                           this.description, this.imageList);
 
-                      // Scaffold.of(context).showSnackBar(
-                      //   SnackBar(
-                      //     content: Text('Added a new post!'),
-                      //   ),
-                      // );
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => MyApp()),
                       );
                     },
                   ),
-                ))
+                )),
+            RaisedButton(
+              color: Colors.blueAccent,
+              onPressed: () {
+                if (_formKey.currentState.validate()) {
+                  _formKey.currentState.save();
+                  addPost(databaseReference, this.title, this.price,
+                          this.description, this.imageList);
+                  Navigator.pop(context, '${model.title} added!');
+                }
+              },
+              child: Text(
+                'Post',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            )
           ],
         ),
       ),
