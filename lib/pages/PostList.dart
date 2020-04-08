@@ -50,6 +50,7 @@ class _PostListState extends State<PostList> {
                 trailing: CircleAvatar(
                   child: Icon(Icons.arrow_back),
                 ),
+                onTap: () {},
               ),
               ListTile(
                 leading: Text(
@@ -59,6 +60,7 @@ class _PostListState extends State<PostList> {
                 trailing: CircleAvatar(
                   child: Icon(Icons.arrow_forward),
                 ),
+                onTap: () {},
               )
             ],
           )),
