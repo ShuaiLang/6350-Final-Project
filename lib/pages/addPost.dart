@@ -131,7 +131,7 @@ class _addPostState extends State<addPost> {
               onPressed: () {
                 if (_formKey.currentState.validate()) {
                   _formKey.currentState.save();
-                  addPost(databaseReference, this.title, this.price,
+                  postInfo(databaseReference, this.title, this.price,
                           this.description, this.imageList);
                   Navigator.pop(context, '${model.title} added!');
                 }
