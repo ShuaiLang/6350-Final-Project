@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final6350/main.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -59,7 +60,8 @@ class _addPostState extends State<addPost> {
               children: <Widget>[
                 RaisedButton.icon(
                   onPressed: () {
-                    if (imageList == null || (imageList != null && imageList.length < 4)) {
+                    if (imageList == null ||
+                        (imageList != null && imageList.length < 4)) {
                       pickImage();
                     } else {
                       // show snack bar or sth?
@@ -77,7 +79,8 @@ class _addPostState extends State<addPost> {
                 ),
                 RaisedButton.icon(
                   onPressed: () {
-                    if (imageList == null || (imageList != null && imageList.length < 4)) {
+                    if (imageList == null ||
+                        (imageList != null && imageList.length < 4)) {
                       takePhoto();
                     } else {
                       // show snack bar or sth?
@@ -114,7 +117,7 @@ class _addPostState extends State<addPost> {
                     textColor: Colors.white,
                     child: Text('POST'),
                     onPressed: () {
-                      addPost(databaseReference, this.title, this.price,
+                      postInfo(databaseReference, this.title, this.price,
                           this.description, this.imageList);
 
                       // Scaffold.of(context).showSnackBar(
@@ -178,12 +181,29 @@ class _addPostState extends State<addPost> {
     setState(() {});
   }
 
-  void addPost(databaseReference, title, price, description, imageList) async {
+  void postInfo(databaseReference, title, price, description, imageList) async {
+    // post image successful then post other info
+    List<String> randomFileNames = [];
+
+    for (var image in imageList) {
+      // var completePath = image.path;
+      // var fileName = (completePath.split('/').last);
+      // print(completePath + ' ' +fileName);
+      
+      // generate a random file name
+       String fileName = UniqueKey().toString() + '.jpg';
+       randomFileNames.add(fileName);
+       StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
+       StorageUploadTask uploadTask = firebaseStorageRef.putFile(image);
+       StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    }
+
     await databaseReference.collection('post').add({
       'title': title,
       'price': price,
       'description': description,
-    }).catchError((e) => {print("Got an error ${e.error}")});
+      'images': randomFileNames,
+    });
   }
 }
 
