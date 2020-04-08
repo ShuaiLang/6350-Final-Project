@@ -35,7 +35,7 @@ class Thumbnails extends StatelessWidget {
     return GridView.builder(
       itemCount: images.length,
         gridDelegate:
-          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
         itemBuilder:(context, index) {
           return ImageGridItem(itemName, images[index], index);
         }

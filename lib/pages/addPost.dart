@@ -94,9 +94,11 @@ class _addPostState extends State<addPost> {
                   onPressed: () {
                     if (model.imageList == null ||
                         (model.imageList != null && model.imageList.length < 4)) {
+                      FocusScope.of(context).unfocus(focusPrevious: true);
                       pickImage();
                     } else {
                       // show snack bar or sth?
+                      _showDialog();
                     }
                   },
                   color: Colors.green,
@@ -113,9 +115,11 @@ class _addPostState extends State<addPost> {
                   onPressed: () {
                     if (model.imageList == null ||
                         (model.imageList != null && model.imageList.length < 4)) {
+                      FocusScope.of(context).unfocus(focusPrevious: true);
                       takePhoto();
                     } else {
                       // show snack bar or sth?
+                      _showDialog();
                     }
                   },
                   color: Colors.green,
@@ -142,8 +146,7 @@ class _addPostState extends State<addPost> {
               onPressed: () async {
                 if (_formKey.currentState.validate()) {
                   _formKey.currentState.save();
-                  await postInfo(databaseReference, model.title, model.price,
-                      model.description, model.imageList);
+                  await postInfo(databaseReference, model);
                   Navigator.pop(context, '${model.title} added!');
                 }
               },
@@ -174,7 +177,7 @@ class _addPostState extends State<addPost> {
           model.imageList.add(file);
         }
       }
-//      setState(() {});
+      setState(() {});
     }
   }
 
@@ -192,21 +195,21 @@ class _addPostState extends State<addPost> {
           model.imageList.add(file);
         }
       }
-//      setState(() {});
+      setState(() {});
     }
   }
 
   removeImage(int index) async {
     //imagesMap.remove(index);
     model.imageList.removeAt(index);
-//    setState(() {});
+    setState(() {});
   }
 
-  void postInfo(databaseReference, title, price, description, imageList) async {
+  void postInfo(databaseReference, Model model) async {
     // post image successful then post other info
     List<String> randomFileNames = [];
 
-    for (var image in imageList) {
+    for (var image in model.imageList) {
       // var completePath = image.path;
       // var fileName = (completePath.split('/').last);
       // print(completePath + ' ' +fileName);
@@ -220,11 +223,34 @@ class _addPostState extends State<addPost> {
     }
 
     await databaseReference.collection('post').add({
-      'title': title,
-      'price': price,
-      'description': description,
+      'title': model.title,
+      'price': model.price,
+      'description': model.description,
       'images': randomFileNames,
     });
+  }
+
+  void _showDialog() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Image Upload"),
+          content: new Text("4 images allowed for each post"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
