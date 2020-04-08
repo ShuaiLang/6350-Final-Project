@@ -140,6 +140,7 @@ class _ImageGridItemState extends State<ImageGridItem> {
     }).catchError((e) =>
         setState(() {
           errorMsg = e.toString();
+          loadingStatus = "No image";
         })
     );
   }

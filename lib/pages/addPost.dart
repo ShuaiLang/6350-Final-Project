@@ -57,6 +57,7 @@ class _addPostState extends State<addPost> {
                     width: halfMediaWidth,
                     child: MyTextFormField(
                       hintText: 'Price',
+                      isPrice: true,
                       validator: (String value) {
                         if (value.isEmpty) {
                           return 'Enter your item price';
@@ -308,11 +309,13 @@ class MyTextFormField extends StatelessWidget {
   final Function validator;
   final Function onSaved;
   final bool isDescription;
+  final bool isPrice;
   MyTextFormField({
     this.hintText,
     this.validator,
     this.onSaved,
-    this.isDescription= false,
+    this.isDescription = false,
+    this.isPrice = false,
   });
   @override
   Widget build(BuildContext context) {
@@ -327,7 +330,9 @@ class MyTextFormField extends StatelessWidget {
         ),
         validator: validator,
         onSaved: onSaved,
-        keyboardType: isDescription ? TextInputType.multiline : TextInputType.text,
+        keyboardType: isDescription
+            ? TextInputType.multiline
+            : (isPrice ? TextInputType.numberWithOptions(decimal: true) : TextInputType.text),
         maxLines: isDescription ? null : 1,
       ),
     );
