@@ -36,7 +36,7 @@ class Thumbnails extends StatelessWidget {
       // if no image, images here will be null
       itemCount: (images == null) ? 0 : images.length,
         gridDelegate:
-          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
         itemBuilder:(context, index) {
           return ImageGridItem(itemName, images[index], index);
         }
