@@ -11,11 +11,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 
-class addPost extends StatefulWidget {
+class AddPost extends StatefulWidget {
   @override
-  _addPostState createState() => _addPostState();
+  _AddPostState createState() => _AddPostState();
 }
-class _addPostState extends State<addPost> {
+class _AddPostState extends State<AddPost> {
   final _formKey = GlobalKey<FormState>();
   Model model = Model();
   final databaseReference = Firestore.instance;
@@ -98,7 +98,6 @@ class _addPostState extends State<addPost> {
                       FocusScope.of(context).unfocus(focusPrevious: true);
                       pickImage();
                     } else {
-                      // show snack bar or sth?
                       _showDialog();
                     }
                   },
@@ -119,7 +118,6 @@ class _addPostState extends State<addPost> {
                       FocusScope.of(context).unfocus(focusPrevious: true);
                       takePhoto();
                     } else {
-                      // show snack bar or sth?
                       _showDialog();
                     }
                   },
@@ -148,7 +146,7 @@ class _addPostState extends State<addPost> {
                 if (_formKey.currentState.validate()) {
                   _formKey.currentState.save();
                   await postInfo(databaseReference, model);
-                  Navigator.pop(context, '${model.title} added!');
+                  Navigator.pop(context, 'A new post ${model.title} added!');
                 }
               },
               child: Text(
@@ -211,9 +209,6 @@ class _addPostState extends State<addPost> {
     List<String> randomFileNames = [];
 
     for (var image in model.imageList) {
-      // var completePath = image.path;
-      // var fileName = (completePath.split('/').last);
-      // print(completePath + ' ' +fileName);
 
       // generate a random file name
       String fileName = UniqueKey().toString() + '.jpg';

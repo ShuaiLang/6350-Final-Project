@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:final6350/pages/Post.dart';
 import 'package:final6350/pages/PostDetail.dart';
-import 'package:final6350/pages/addPost.dart';
+import 'package:final6350/pages/AddPost.dart';
 
 class PostList extends StatefulWidget {
   PostList({Key key}) : super(key: key);
@@ -73,7 +73,7 @@ _navigateAndDisplaySnackbar(BuildContext context) async {
   // Navigator.pop on the Selection Screen.
   final result = await Navigator.push(
     context,
-    MaterialPageRoute(builder: (context) => addPost()),
+    MaterialPageRoute(builder: (context) => AddPost()),
   );
 
   // After the Selection Screen returns a result, hide any previous snackbars
