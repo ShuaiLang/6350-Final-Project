@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:final6350/pages/Post.dart';
 import 'package:final6350/pages/PostDetail.dart';
 import 'package:final6350/pages/AddPost.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class PostList extends StatefulWidget {
   PostList({Key key}) : super(key: key);
@@ -13,57 +15,102 @@ class PostList extends StatefulWidget {
 }
 
 class _PostListState extends State<PostList> {
+  bool _isSignIn = false;
+
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+
+  _login() async {
+    // try {
+    //   await _googleSignIn.signIn();
+    //   setState(() {
+    //     _isSignIn = true;
+    //   });
+    // } catch (e) {
+    //   print(e);
+    // }
+    final GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
+    final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+
+    final AuthResult authResult = await _auth.signInWithCredential(credential);
+    final FirebaseUser user = authResult.user;
+
+    assert(!user.isAnonymous);
+    assert(await user.getIdToken() != null);
+
+    final FirebaseUser currentUser = await _auth.currentUser();
+    assert(user.uid == currentUser.uid);
+
+    return 'signInWithGoogle succeeded: $user';
+  }
+
+  _logout() {
+    _googleSignIn.signOut();
+    setState(() {
+      _isSignIn = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Garage Sale Item List'),
       ),
       body: Center(child: _buildBody(context)),
       floatingActionButton: Builder(
-        builder: (context) =>
-            FloatingActionButton(
-              onPressed: () {
-                _navigateAndDisplaySnackbar(context);
-              },
-              tooltip: 'Increment',
-              child: Icon(Icons.add),
-            ),
+        builder: (context) => FloatingActionButton(
+          onPressed: () {
+            _navigateAndDisplaySnackbar(context);
+          },
+          tooltip: 'Increment',
+          child: Icon(Icons.add),
+        ),
       ),
       drawer: Drawer(
           child: Column(
-            children: <Widget>[
-              UserAccountsDrawerHeader(
-                accountName: Text('Username from google sign in'),
-                accountEmail: Text("useremail@gmail.com"),
-                currentAccountPicture: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.person, size: 35)),
-              ),
-              ListTile(
-                leading: Text(
-                  'Signin',
-                  style: TextStyle(fontSize: 18),
-                ),
-                trailing: CircleAvatar(
-                  child: Icon(Icons.arrow_back),
-                ),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: Text(
-                  'Logout',
-                  style: TextStyle(fontSize: 18),
-                ),
-                trailing: CircleAvatar(
-                  child: Icon(Icons.arrow_forward),
-                ),
-                onTap: () {},
-              )
-            ],
-          )),
+        children: <Widget>[
+          UserAccountsDrawerHeader(
+            accountName: _isSignIn
+                ? _googleSignIn.currentUser.displayName
+                : Text('Username from google sign in'),
+            accountEmail: _isSignIn
+                ? _googleSignIn.currentUser.email
+                : Text("useremail@gmail.com"),
+            currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: _isSignIn
+                    ? _googleSignIn.currentUser.photoUrl
+                    : Icon(Icons.person, size: 35)),
+          ),
+          ListTile(
+            leading: Text(
+              'Signin',
+              style: TextStyle(fontSize: 18),
+            ),
+            trailing: CircleAvatar(
+              child: Icon(Icons.arrow_back),
+            ),
+            onTap: () => _login(),
+          ),
+          ListTile(
+            leading: Text(
+              'Logout',
+              style: TextStyle(fontSize: 18),
+            ),
+            trailing: CircleAvatar(
+              child: Icon(Icons.arrow_forward),
+            ),
+            onTap: () => _logout(),
+          )
+        ],
+      )),
     );
   }
 }
@@ -96,10 +143,9 @@ Widget _buildBody(BuildContext context) {
   );
 }
 
-Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot){
+Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
   return ListView(
-      children: snapshot.map((data) => _buildListItem(context, data)).toList()
-  );
+      children: snapshot.map((data) => _buildListItem(context, data)).toList());
 }
 
 Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
@@ -126,4 +172,3 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
     ),
   );
 }
-
