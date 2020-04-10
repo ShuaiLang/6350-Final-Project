@@ -208,15 +208,18 @@ class _AddPostState extends State<AddPost> {
     // post image successful then post other info
     List<String> randomFileNames = [];
 
-    for (var image in model.imageList) {
+    if (model.imageList != null) {
+      for (var image in model.imageList) {
 
-      // generate a random file name
-      String fileName = UniqueKey().toString() + '.jpg';
-      randomFileNames.add(fileName);
-      StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
-      StorageUploadTask uploadTask = firebaseStorageRef.putFile(image);
-      StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+        // generate a random file name
+        String fileName = UniqueKey().toString() + '.jpg';
+        randomFileNames.add(fileName);
+        StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
+        StorageUploadTask uploadTask = firebaseStorageRef.putFile(image);
+        StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+      }
     }
+
 
     await databaseReference.collection('post').add({
       'title': model.title,

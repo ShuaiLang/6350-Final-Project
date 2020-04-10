@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:final6350/pages/Post.dart';
 import 'package:final6350/pages/PostDetail.dart';
 import 'package:final6350/pages/AddPost.dart';
@@ -15,20 +14,13 @@ class PostList extends StatefulWidget {
 }
 
 class _PostListState extends State<PostList> {
+  GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
   bool _isSignIn = false;
-
   FirebaseAuth _auth = FirebaseAuth.instance;
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
   _login() async {
-    // try {
-    //   await _googleSignIn.signIn();
-    //   setState(() {
-    //     _isSignIn = true;
-    //   });
-    // } catch (e) {
-    //   print(e);
-    // }
+
     final GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
@@ -46,6 +38,9 @@ class _PostListState extends State<PostList> {
 
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
+    setState(() {
+      _isSignIn = true;
+    });
 
     return 'signInWithGoogle succeeded: $user';
   }
@@ -60,6 +55,7 @@ class _PostListState extends State<PostList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _drawerKey,
       appBar: AppBar(
         title: Text('Garage Sale Item List'),
       ),
@@ -67,7 +63,11 @@ class _PostListState extends State<PostList> {
       floatingActionButton: Builder(
         builder: (context) => FloatingActionButton(
           onPressed: () {
-            _navigateAndDisplaySnackbar(context);
+            if (!_isSignIn) {
+              _drawerKey.currentState.openDrawer();
+            } else {
+              _navigateAndDisplaySnackbar(context);
+            }
           },
           tooltip: 'Increment',
           child: Icon(Icons.add),
@@ -75,41 +75,41 @@ class _PostListState extends State<PostList> {
       ),
       drawer: Drawer(
           child: Column(
-        children: <Widget>[
-          UserAccountsDrawerHeader(
-            accountName: _isSignIn
-                ? _googleSignIn.currentUser.displayName
-                : Text('Username from google sign in'),
-            accountEmail: _isSignIn
-                ? _googleSignIn.currentUser.email
-                : Text("useremail@gmail.com"),
-            currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: _isSignIn
-                    ? _googleSignIn.currentUser.photoUrl
-                    : Icon(Icons.person, size: 35)),
-          ),
-          ListTile(
-            leading: Text(
-              'Signin',
-              style: TextStyle(fontSize: 18),
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: _isSignIn
+                  ?  Text(_googleSignIn.currentUser.displayName)
+                  : Text('Username from google sign in'),
+              accountEmail: _isSignIn
+                  ?  Text(_googleSignIn.currentUser.email)
+                  : Text("useremail@gmail.com"),
+              currentAccountPicture: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: _isSignIn
+                      ? Image.network(_googleSignIn.currentUser.photoUrl)
+                      : Icon(Icons.person, size: 35)),
             ),
-            trailing: CircleAvatar(
-              child: Icon(Icons.arrow_back),
-            ),
-            onTap: () => _login(),
-          ),
-          ListTile(
-            leading: Text(
-              'Logout',
-              style: TextStyle(fontSize: 18),
-            ),
-            trailing: CircleAvatar(
-              child: Icon(Icons.arrow_forward),
-            ),
-            onTap: () => _logout(),
-          )
-        ],
+            !_isSignIn ? ListTile(
+              leading: Text(
+                'Signin',
+                style: TextStyle(fontSize: 18),
+              ),
+              trailing: CircleAvatar(
+                child: Icon(Icons.arrow_back),
+              ),
+              onTap: () => _login(),
+            ) : new Container(width: 0, height: 0),
+            _isSignIn ? ListTile(
+              leading: Text(
+                'Logout',
+                style: TextStyle(fontSize: 18),
+              ),
+              trailing: CircleAvatar(
+                child: Icon(Icons.arrow_forward),
+              ),
+              onTap: () => _logout(),
+            ) : new Container(width: 0, height: 0)
+          ],
       )),
     );
   }
