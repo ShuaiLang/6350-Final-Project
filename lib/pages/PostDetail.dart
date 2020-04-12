@@ -123,7 +123,7 @@ class ImageGridItem extends StatefulWidget {
 }
 
 class _ImageGridItemState extends State<ImageGridItem> {
-  final ref = FirebaseStorage.instance.ref();
+  final ref = FirebaseStorage.instance.ref().child("garagesale-images");
   Uint8List imageBytes;
   String errorMsg;
   String loadingStatus = "No Image";

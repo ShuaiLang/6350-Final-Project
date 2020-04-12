@@ -53,6 +53,7 @@ class _PostListState extends State<PostList> {
     _googleSignIn.signOut();
     setState(() {
       _isSignIn = false;
+      currentUserEmail = '';
     });
   }
 
@@ -142,7 +143,7 @@ Widget _buildBody(BuildContext context, currentUserEmail) {
   // print(currentUserEmail);
 
   if (currentUserEmail == '') {
-    return null;
+    return Text("Please login to view and add new posts!");
   }
   // fetch data from firebase db
   return StreamBuilder<QuerySnapshot>(
@@ -155,6 +156,9 @@ Widget _buildBody(BuildContext context, currentUserEmail) {
 }
 
 Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+  if (snapshot.length == 0) {
+    return Text("You have no post yet.");
+  }
   return ListView(
       children: snapshot.map((data) => _buildListItem(context, data)).toList());
 }

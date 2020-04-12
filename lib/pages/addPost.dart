@@ -224,7 +224,7 @@ class _AddPostState extends State<AddPost> {
         String fileName = UniqueKey().toString() + '.jpg';
         randomFileNames.add(fileName);
         StorageReference firebaseStorageRef =
-            FirebaseStorage.instance.ref().child(fileName);
+            FirebaseStorage.instance.ref().child("garagesale-images").child(fileName);
         StorageUploadTask uploadTask = firebaseStorageRef.putFile(image);
         StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
       }
