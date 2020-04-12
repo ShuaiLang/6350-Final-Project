@@ -18,6 +18,7 @@ class _PostListState extends State<PostList> {
   bool _isSignIn = false;
   FirebaseAuth _auth = FirebaseAuth.instance;
   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+  String currentUserEmail = '';
 
   _login() async {
 
@@ -37,6 +38,9 @@ class _PostListState extends State<PostList> {
     assert(await user.getIdToken() != null);
 
     final FirebaseUser currentUser = await _auth.currentUser();
+    setState(() {
+      currentUserEmail = currentUser.email;
+    });
     assert(user.uid == currentUser.uid);
     setState(() {
       _isSignIn = true;
@@ -59,14 +63,14 @@ class _PostListState extends State<PostList> {
       appBar: AppBar(
         title: Text('Garage Sale Item List'),
       ),
-      body: Center(child: _buildBody(context)),
+      body: Center(child: _buildBody(context, currentUserEmail)),
       floatingActionButton: Builder(
         builder: (context) => FloatingActionButton(
           onPressed: () {
             if (!_isSignIn) {
               _drawerKey.currentState.openDrawer();
             } else {
-              _navigateAndDisplaySnackbar(context);
+              _navigateAndDisplaySnackbar(context, currentUserEmail);
             }
           },
           tooltip: 'Increment',
@@ -115,12 +119,13 @@ class _PostListState extends State<PostList> {
   }
 }
 
-_navigateAndDisplaySnackbar(BuildContext context) async {
+_navigateAndDisplaySnackbar(BuildContext context, email) async {
   // Navigator.push returns a Future that completes after calling
   // Navigator.pop on the Selection Screen.
+  // print('email before nav : ' + email);
   final result = await Navigator.push(
     context,
-    MaterialPageRoute(builder: (context) => AddPost()),
+    MaterialPageRoute(builder: (context) => AddPost(email: email)),
   );
 
   // After the Selection Screen returns a result, hide any previous snackbars
@@ -132,10 +137,16 @@ _navigateAndDisplaySnackbar(BuildContext context) async {
   }
 }
 
-Widget _buildBody(BuildContext context) {
+Widget _buildBody(BuildContext context, currentUserEmail) {
+  // print('here');
+  // print(currentUserEmail);
+
+  if (currentUserEmail == '') {
+    return null;
+  }
   // fetch data from firebase db
   return StreamBuilder<QuerySnapshot>(
-    stream: Firestore.instance.collection('post').snapshots(),
+    stream: Firestore.instance.collection('garage-sale-lang-meng').document(currentUserEmail).collection('post').snapshots(),
     builder: (context, snapshot) {
       if (!snapshot.hasData) return LinearProgressIndicator();
       return _buildList(context, snapshot.data.documents);

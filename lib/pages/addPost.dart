@@ -3,25 +3,30 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:final6350/model.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:validators/validators.dart' as validator;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
-
 class AddPost extends StatefulWidget {
+  String email;
+  AddPost({Key key, this.email}): super(key: key);
+  
   @override
   _AddPostState createState() => _AddPostState();
 }
+
 class _AddPostState extends State<AddPost> {
   final _formKey = GlobalKey<FormState>();
   Model model = Model();
   final databaseReference = Firestore.instance;
+  
 
   @override
   Widget build(BuildContext context) {
+    // print(widget.email);
     final halfMediaWidth = MediaQuery.of(context).size.width / 2.0;
     return Scaffold(
       appBar: AppBar(
@@ -94,7 +99,8 @@ class _AddPostState extends State<AddPost> {
                 RaisedButton.icon(
                   onPressed: () {
                     if (model.imageList == null ||
-                        (model.imageList != null && model.imageList.length < 4)) {
+                        (model.imageList != null &&
+                            model.imageList.length < 4)) {
                       FocusScope.of(context).unfocus(focusPrevious: true);
                       pickImage();
                     } else {
@@ -114,7 +120,8 @@ class _AddPostState extends State<AddPost> {
                 RaisedButton.icon(
                   onPressed: () {
                     if (model.imageList == null ||
-                        (model.imageList != null && model.imageList.length < 4)) {
+                        (model.imageList != null &&
+                            model.imageList.length < 4)) {
                       FocusScope.of(context).unfocus(focusPrevious: true);
                       takePhoto();
                     } else {
@@ -135,17 +142,18 @@ class _AddPostState extends State<AddPost> {
             ),
             // show picked images
             MultiImagePickerList(
-              imageList: model.imageList,
-              removeNewImage: (index) {
-                removeImage(index);
-                return null;
-              }),
+                imageList: model.imageList,
+                removeNewImage: (index) {
+                  removeImage(index);
+                  return null;
+                }),
             RaisedButton(
               color: Colors.blueAccent,
               onPressed: () async {
                 if (_formKey.currentState.validate()) {
                   _formKey.currentState.save();
-                  await postInfo(databaseReference, model);
+                  postInfo(databaseReference, model, widget.email);
+                  
                   Navigator.pop(context, 'A new post ${model.title} added!');
                 }
               },
@@ -162,6 +170,7 @@ class _AddPostState extends State<AddPost> {
       ),
     );
   }
+
   takePhoto() async {
     File file = await ImagePicker.pickImage(source: ImageSource.camera);
     if (file != null) {
@@ -204,24 +213,29 @@ class _AddPostState extends State<AddPost> {
     setState(() {});
   }
 
-  void postInfo(databaseReference, Model model) async {
-    // post image successful then post other info
+  void postInfo(databaseReference, Model model, email) async {
+    // post image to storage
+    
     List<String> randomFileNames = [];
 
     if (model.imageList != null) {
       for (var image in model.imageList) {
-
         // generate a random file name
         String fileName = UniqueKey().toString() + '.jpg';
         randomFileNames.add(fileName);
-        StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
+        StorageReference firebaseStorageRef =
+            FirebaseStorage.instance.ref().child(fileName);
         StorageUploadTask uploadTask = firebaseStorageRef.putFile(image);
         StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
       }
     }
 
-
-    await databaseReference.collection('post').add({
+    // post info to firestore
+    await databaseReference
+        .collection('garage-sale-lang-meng')
+        .document(email)
+        .collection('post')
+        .add({
       'title': model.title,
       'price': model.price,
       'description': model.description,
@@ -260,45 +274,45 @@ Widget MultiImagePickerList(
     child: imageList == null || imageList.length == 0
         ? Container()
         : SizedBox(
-      height: 150.0,
-      child: ListView.builder(
-          itemCount: imageList.length,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: EdgeInsets.only(left: 3.0, right: 3.0),
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    width: 150.0,
-                    height: 150.0,
-                    decoration: BoxDecoration(
-                        color: Colors.grey.withAlpha(100),
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(15.0)),
-                        image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: FileImage(imageList[index]))),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: CircleAvatar(
-                      backgroundColor: Colors.red[600],
-                      child: IconButton(
-                          icon: Icon(
-                            Icons.clear,
-                            color: Colors.white,
+            height: 150.0,
+            child: ListView.builder(
+                itemCount: imageList.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: EdgeInsets.only(left: 3.0, right: 3.0),
+                    child: Stack(
+                      children: <Widget>[
+                        Container(
+                          width: 150.0,
+                          height: 150.0,
+                          decoration: BoxDecoration(
+                              color: Colors.grey.withAlpha(100),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15.0)),
+                              image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: FileImage(imageList[index]))),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.red[600],
+                            child: IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  removeNewImage(index);
+                                }),
                           ),
-                          onPressed: () {
-                            removeNewImage(index);
-                          }),
+                        )
+                      ],
                     ),
-                  )
-                ],
-              ),
-            );
-          }),
-    ),
+                  );
+                }),
+          ),
   );
 }
 
@@ -330,7 +344,9 @@ class MyTextFormField extends StatelessWidget {
         onSaved: onSaved,
         keyboardType: isDescription
             ? TextInputType.multiline
-            : (isPrice ? TextInputType.numberWithOptions(decimal: true) : TextInputType.text),
+            : (isPrice
+                ? TextInputType.numberWithOptions(decimal: true)
+                : TextInputType.text),
         maxLines: isDescription ? null : 1,
       ),
     );
