@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final6350/pages/Post.dart';
 import 'package:final6350/pages/PostDetail.dart';
-import 'package:final6350/pages/AddPost.dart';
+import 'package:final6350/pages/addPost.dart';
 import 'package:final6350/pages/Profile.dart';
 import 'package:final6350/service/login.dart';
 import 'package:firebase_storage/firebase_storage.dart';
