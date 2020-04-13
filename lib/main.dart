@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'pages/home.dart';
+import 'package:final6350/pages/PostList.dart';
+import 'package:final6350/pages/LoginPage.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -11,7 +13,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: LoginPage(),
+      routes: {
+        "/postlist": (_) => new PostList(),
+      },
     );
   }
 }
