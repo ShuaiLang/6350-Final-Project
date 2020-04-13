@@ -1,9 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final6350/pages/Post.dart';
 import 'package:final6350/pages/PostDetail.dart';
 import 'package:final6350/pages/AddPost.dart';
+import 'package:final6350/pages/Profile.dart';
+import 'package:final6350/service/login.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class PostList extends StatefulWidget {
@@ -15,47 +20,6 @@ class PostList extends StatefulWidget {
 
 class _PostListState extends State<PostList> {
   GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
-  bool _isSignIn = false;
-  FirebaseAuth _auth = FirebaseAuth.instance;
-  GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
-  String currentUserEmail = '';
-
-  _login() async {
-
-    final GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
-    final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
-
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
-
-    final AuthResult authResult = await _auth.signInWithCredential(credential);
-    final FirebaseUser user = authResult.user;
-
-    assert(!user.isAnonymous);
-    assert(await user.getIdToken() != null);
-
-    final FirebaseUser currentUser = await _auth.currentUser();
-    setState(() {
-      currentUserEmail = currentUser.email;
-    });
-    assert(user.uid == currentUser.uid);
-    setState(() {
-      _isSignIn = true;
-    });
-
-    return 'signInWithGoogle succeeded: $user';
-  }
-
-  _logout() {
-    _googleSignIn.signOut();
-    setState(() {
-      _isSignIn = false;
-      currentUserEmail = '';
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,59 +27,32 @@ class _PostListState extends State<PostList> {
       key: _drawerKey,
       appBar: AppBar(
         title: Text('Garage Sale Item List'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            tooltip: 'Profile',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return Profile();
+                  },
+                ),
+              );
+            },
+          ),
+        ],
       ),
-      body: Center(child: _buildBody(context, currentUserEmail)),
+      body: Center(child: _buildBody(context, email)),
       floatingActionButton: Builder(
         builder: (context) => FloatingActionButton(
           onPressed: () {
-            if (!_isSignIn) {
-              _drawerKey.currentState.openDrawer();
-            } else {
-              _navigateAndDisplaySnackbar(context, currentUserEmail);
-            }
+            _navigateAndDisplaySnackbar(context, email);
           },
           tooltip: 'Increment',
           child: Icon(Icons.add),
         ),
       ),
-      drawer: Drawer(
-          child: Column(
-          children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: _isSignIn
-                  ?  Text(_googleSignIn.currentUser.displayName)
-                  : Text('Username from google sign in'),
-              accountEmail: _isSignIn
-                  ?  Text(_googleSignIn.currentUser.email)
-                  : Text("useremail@gmail.com"),
-              currentAccountPicture: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: _isSignIn
-                      ? Image.network(_googleSignIn.currentUser.photoUrl)
-                      : Icon(Icons.person, size: 35)),
-            ),
-            !_isSignIn ? ListTile(
-              leading: Text(
-                'Signin',
-                style: TextStyle(fontSize: 18),
-              ),
-              trailing: CircleAvatar(
-                child: Icon(Icons.arrow_back),
-              ),
-              onTap: () => _login(),
-            ) : new Container(width: 0, height: 0),
-            _isSignIn ? ListTile(
-              leading: Text(
-                'Logout',
-                style: TextStyle(fontSize: 18),
-              ),
-              trailing: CircleAvatar(
-                child: Icon(Icons.arrow_forward),
-              ),
-              onTap: () => _logout(),
-            ) : new Container(width: 0, height: 0)
-          ],
-      )),
     );
   }
 }
@@ -165,25 +102,42 @@ Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
 
 Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   final post = Post.fromSnapshot(data);
-
-  return Padding(
-    key: ValueKey(post.title),
-    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-    child: Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(5.0),
-      ),
-      child: ListTile(
-        title: Text(post.title),
-//        trailing: Text(post.description),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PostDetail(post: post)),
-          );
-        },
-      ),
-    ),
+  final ref = FirebaseStorage.instance.ref().child("garagesale-images");
+  String iconName = "";
+  if (post.images.length > 0) {
+    iconName = post.images[0];
+  }
+  return FutureBuilder<Uint8List> (
+    future: getIcon(ref, iconName),
+    builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+      return Padding(
+        key: ValueKey(post.title),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: ListTile(
+            leading: snapshot.data == null
+              ? Icon(Icons.image, size: 50)
+              : Image.memory(snapshot.data, height: 100),
+            title: Text(post.title),
+            subtitle: Text(post.description, maxLines: 1, overflow: TextOverflow.ellipsis),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PostDetail(post: post)),
+              );
+            },
+          ),
+        ),
+      );
+    },
   );
+
+}
+
+Future<Uint8List> getIcon (StorageReference ref, String name) async {
+  return await ref.child(name).getData(10000000);
 }
