@@ -1,7 +1,7 @@
 # 6350-Final-Project
 
 ## Teammate: 
-
+Shuai Lang, Xuanning Meng
 ## Instruction:
 #### Use command
 ```
